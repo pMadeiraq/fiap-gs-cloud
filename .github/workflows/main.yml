@@ -1,0 +1,49 @@
+# -----------------------------------------------------------------
+# ARQUIVO: .github/workflows/main.yml
+# -----------------------------------------------------------------
+
+# 1. NOME: Dá um nome para este "processo" (workflow)
+name: Deploy Python App to Azure Web App
+
+# 2. GATILHO (TRIGGER): Quando este processo deve rodar?
+on:
+  push:
+    branches: [ main ] # Roda toda vez que você fizer "git push" para a branch "main"
+
+# 3. TAREFAS (JOBS): O que fazer?
+jobs:
+  build:
+    # 4. MÁQUINA VIRTUAL: "Aluga" uma máquina virtual Ubuntu (Linux) limpa para rodar os comandos
+    runs-on: ubuntu-latest
+
+    # 5. PASSOS (STEPS): A sequência de comandos para rodar na máquina virtual
+    steps:
+    # PASSO 1: Baixa o seu código (app.py, requirements.txt, etc.) para a máquina virtual
+    - uses: actions/checkout@v3
+
+    # [cite_start]PASSO 2: Instala o Python 3.12, como pedido no projeto [cite: 33, 62]
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    # PASSO 3: Instala as bibliotecas do seu app (Flask, Pandas, Gunicorn)
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+    
+    # PASSO 4: DEPLOY! Pega o seu código e envia para o Azure Web App
+    - name: 'Deploy to Azure WebApp'
+      uses: azure/webapps-deploy@v2
+      with:
+        # MUITO IMPORTANTE: Coloque o nome EXATO do seu WebApp aqui
+        app-name: 'gs-cloud-pedro-madeira-e-pedro-henrique' 
+        
+        # USA A "CHAVE": Pega aquela "chave" (o perfil de publicação) 
+        # que você salvou nos "Secrets" do GitHub
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} 
+        
+        # AVISA O AZURE: Diz que o código do app está na pasta raiz
+        package: '.'
