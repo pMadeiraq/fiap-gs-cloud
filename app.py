@@ -1,3 +1,5 @@
+# Forçando re-deploy
+
 import pandas as pd
 from flask import Flask, render_template
 import os  # <--- 1. IMPORTAÇÃO NOVA
